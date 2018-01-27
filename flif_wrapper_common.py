@@ -99,13 +99,20 @@ class flifEncoderBase( object ):
     
     class flif(object):
         create_encoder = None
-        encode_file = None
         destroy_encoder = None
         
+        set_interlaced = None
+        set_learn_repeat = None
+        set_split_threshold = None
+        set_crc_check = None
+        set_lossy = None
+                
+        encode_file = None
+
         add_image = None
         add_image_move = None
         
-        set_crc_check = None
+        
     
     
     @classmethod
@@ -117,26 +124,28 @@ class flifEncoderBase( object ):
         strct.create_encoder = fliflib.flif_create_encoder
         strct.create_encoder.restype = ct.c_void_p
         
-        strct.encode_file = fliflib.flif_encoder_encode_file
-        strct.encode_file.restype = ct.c_int32
-        strct.encode_file.argtypes = [ ct.c_void_p, ct.c_char_p ]
-        
         strct.destroy_encoder = fliflib.flif_destroy_encoder
         strct.destroy_encoder.restype = None
         strct.destroy_encoder.argtypes = [ ct.c_void_p ]
         
-        strct.add_image = fliflib.flif_encoder_add_image
-        strct.add_image.restype = None
-        strct.add_image.argtypes = [ ct.c_void_p, ct.c_void_p ]
         
-        strct.add_image_move = fliflib.flif_encoder_add_image_move
-        strct.add_image_move.restype = None
-        strct.add_image_move.argtypes = [ ct.c_void_p, ct.c_void_p ]
-
-        strct.set_crc_check = fliflib.flif_encoder_set_crc_check
-        strct.set_crc_check.restype = None
-        strct.set_crc_check.argtypes = [ ct.c_void_p, ct.c_uint32 ]
-
+        def configCall( name, argtypes=None, restype=None ):
+            setattr( strct, name,
+                     fliflib.__getitem__("flif_encoder_%s" % name) )
+            if argtypes is not None:
+                strct.__dict__[name].argtypes = argtypes 
+            strct.__dict__[name].restype  = restype
+        
+        
+        configCall( "encode_file", [ ct.c_void_p, ct.c_char_p ], ct.c_int32 )
+        configCall( "add_image", [ ct.c_void_p, ct.c_void_p ] )
+        configCall( "add_image_move", [ ct.c_void_p, ct.c_void_p ] )
+        
+        configCall( "set_interlaced", [ ct.c_void_p, ct.c_uint32 ] )
+        configCall( "set_learn_repeat", [ ct.c_void_p, ct.c_uint32 ] )
+        configCall( "set_split_threshold", [ ct.c_void_p, ct.c_int32 ] )
+        configCall( "set_crc_check", [ ct.c_void_p, ct.c_uint32 ] )
+        configCall( "set_lossy", [ ct.c_void_p, ct.c_int32 ] )
 
 
 

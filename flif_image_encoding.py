@@ -31,18 +31,21 @@ class flifEncoderImage( flifImageBase ):
     mImporter = None
     
     mFlifImageHandle = None
+
     
     
     def __init__(self, npImage ):
         self.mImporter = self.getFlifImporter( npImage )
         self.mImage = self.correctImageStrides( npImage )
-    
-    
+
+
     def  __enter__(self):
         self.mFlifImageHandle = self.mImporter( self.mImage.shape[1], self.mImage.shape[0], 
                                                 self.mImage.ctypes.data_as( ct.c_void_p ), 
                                                 self.mImage.strides[0] )
+        
         Logger.debug("Using FLIF image importer %s", repr( self.mFlifImageHandle ) )
+        
         return self
     
     
@@ -117,16 +120,34 @@ class flifEncoder( flifEncoderBase ):
     # Object members
     mFlifEncoderHandle = None
     mFname = None
+            
+    mDoCrcCheck = None
+    mInterlaced = None
+    mLearnRepeat = None
+    mSplitThreshold = None
+    mMaxLoss = None
     
     
-    def __init__(self, fname ):
+    def __init__(self, fname, crcCheck=True, interlaced=False, learn_repeat=4, split_threshold_factor=12, maxloss=0 ):
         self.mFname = fname
+        
+        self.mDoCrcCheck = int( bool(crcCheck) )
+        self.mInterlaced = int( bool(interlaced) )
+        self.mLearnRepeat = max( 0, int(learn_repeat) )
+        self.mSplitThreshold = 5461 * 8 * max( 4, int(split_threshold_factor) )
+        self.mMaxLoss = max( 0, min( 100, int(maxloss) ) )   
     
     
     def  __enter__(self):
         self.mFlifEncoderHandle = self.flif.create_encoder()
-        self.flif.set_crc_check( self.mFlifEncoderHandle, 1 )
         Logger.debug("Create FLIF encoder %r", self.mFlifEncoderHandle )
+        
+        self.flif.set_interlaced( self.mFlifEncoderHandle, self.mInterlaced )
+        self.flif.set_learn_repeat( self.mFlifEncoderHandle, self.mLearnRepeat )
+        self.flif.set_split_threshold( self.mFlifEncoderHandle, self.mSplitThreshold )
+        self.flif.set_crc_check( self.mFlifEncoderHandle, self.mDoCrcCheck )
+        self.flif.set_lossy( self.mFlifEncoderHandle, self.mMaxLoss )
+        
         return self
     
     
