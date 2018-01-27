@@ -139,6 +139,23 @@ class flifEncoder( flifEncoderBase ):
     
     
     def  __enter__(self):
+        self.open()
+        return self
+    
+    
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is None:
+            self.close()
+        else:
+            self.destroy()
+
+    
+    
+    def open(self):
+        # check if file is writable
+        with open( self.mFname, "w" ) as ftest:
+            pass        
+        
         self.mFlifEncoderHandle = self.flif.create_encoder()
         Logger.debug("Create FLIF encoder %r", self.mFlifEncoderHandle )
         
@@ -151,21 +168,22 @@ class flifEncoder( flifEncoderBase ):
         return self
     
     
-    def __exit__(self, exc_type, exc_value, traceback):
+    def close(self):
         if self.mFlifEncoderHandle is not None:
-            
-            if exc_type is None:
-                
-                # check if file is writable
-                with open( self.mFname, "w" ) as ftest:
-                    pass
-                
+            try:
                 retval = self.flif.encode_file( self.mFlifEncoderHandle, self.mFname )
                 if 1 != retval:
                     raise IOError("Error writing FLIF file %s" % self.mFname )
-            
-            self.flif.destroy_encoder( self.mFlifEncoderHandle )
+            finally:
+                self.destroy()
+
+
+    def destroy(self):
+        if self.mFlifEncoderHandle is not None:
+            handle = self.mFlifEncoderHandle
             self.mFlifEncoderHandle = None
+            self.flif.destroy_encoder( handle )
+            
     
     
     def addImage(self, flifImage ):
