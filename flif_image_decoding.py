@@ -58,7 +58,6 @@ class flifDecoderImage( flifImageBase ):
             rowReader = ( self.flif.read_row_GRAY8, self.flif.read_row_GRAY16 )
             self.mImgShape = (self.height, self.width)
         else:
-            assert( 4 == self.nb_channels )
             rowReader = ( self.flif.read_row_RGBA8, self.flif.read_row_RGBA16 )
             self.mImgShape = (self.height, self.width, 4)
         
@@ -88,8 +87,13 @@ class flifDecoderImage( flifImageBase ):
         for rowIdx in xrange( npyImg.shape[0] ):
             self.rowReader( rowIdx, imgPointer, npyImg.strides[0] )
             imgPointer.value += npyImg.strides[0]   # jump to next row (strides in bytes)
-
-        return npyImg.reshape( self.mImgShape )
+        
+        npyImg = npyImg.reshape( self.mImgShape )
+        
+        if (1 < self.nb_channels) and (4 != self.nb_channels):
+            npyImg = npyImg[:,:,:self.nb_channels]
+        
+        return npyImg
 
 
             
