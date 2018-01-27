@@ -7,6 +7,8 @@ Created on Sat Jan 20 21:18:10 2018
 
 from __future__ import print_function
 
+__all__ = ["flifEncoderImage", "flifEncoder"]
+
 
 import ctypes as ct
 import numpy as np
@@ -111,8 +113,8 @@ class flifEncoderImage( flifImageBase ):
         return npImage
     
 
-
 ####################################################################################
+
 
 class flifEncoder( flifEncoderBase ):
 
@@ -136,6 +138,10 @@ class flifEncoder( flifEncoderBase ):
         self.mLearnRepeat = max( 0, int(learn_repeat) )
         self.mSplitThreshold = 5461 * 8 * max( 4, int(split_threshold_factor) )
         self.mMaxLoss = max( 0, min( 100, int(maxloss) ) )   
+    
+    
+    def __del__(self):
+        self.close()
     
     
     def  __enter__(self):
@@ -186,12 +192,15 @@ class flifEncoder( flifEncoderBase ):
             
     
     
-    def addImage(self, flifImage ):
+    def addImage(self, img ):
         
-        assert isinstance( flifImage, flifEncoderImage ), "%r is not a flifEncoderImage" % flifImage
-        
-        if (self.mFlifEncoderHandle is not None) and (flifImage.mFlifImageHandle is not None):
-            self.flif.add_image( self.mFlifEncoderHandle, flifImage.mFlifImageHandle )
+        if self.mFlifEncoderHandle is not None:
+            if isinstance( img, flifEncoderImage ):
+                if img.mFlifImageHandle is not None:
+                    self.flif.add_image( self.mFlifEncoderHandle, img.mFlifImageHandle )
+            else:
+                with flifEncoderImage( img ) as img:
+                    self.moveImage( img )
     
     
     def moveImage(self, flifImage ):

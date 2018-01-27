@@ -5,8 +5,10 @@ Created on Thu Jan 25 18:09:13 2018
 @author: Matthias Höffken
 """
 
-
 from __future__ import print_function
+
+
+__all__ = ["flifDecoderImage", "flifDecoder"]
 
 
 import ctypes as ct
