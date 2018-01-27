@@ -55,43 +55,42 @@ class flifImageBase( object ):
         
         strct = cls.flif
         
-        imgGetter    =  [ "width",     "height",    "nb_channels", "depth",    "palette_size" ]
-        getterResType = [ ct.c_uint32, ct.c_uint32, ct.c_uint8,    ct.c_uint8, ct.c_uint32 ]
+        strct.destroy_image = fliflib.flif_destroy_image
+        strct.destroy_image.argtypes = [ ct.c_void_p ]
         
-        for getter, rtype in zip( imgGetter, getterResType ):
-            strct_getter = "get_%s" % getter
-            setattr( strct, strct_getter,
-                     fliflib.__getitem__("flif_image_get_%s" % getter) )
-            strct.__dict__[strct_getter].argtypes = [ ct.c_void_p ]
-            strct.__dict__[strct_getter].restype  = rtype
+        def configCallGeneral( flif_prefix, name, argtypes=None, restype=None ):
+            setattr( strct, name,
+                     fliflib.__getitem__("%s_%s" % (flif_prefix, name) ) )
+            if argtypes is not None:
+                strct.__dict__[name].argtypes = argtypes 
+            strct.__dict__[name].restype  = restype
         
-        
+        # Image import function
         imgImporters = [ "RGBA", "RGB", "GRAY", "GRAY16" ]        
         #                        width        height       data   major-stride
         importArgTypes = [ ct.c_uint32, ct.c_uint32, ct.c_void_p, ct.c_uint32 ]
+        configImportCall = lambda name: configCallGeneral( "flif", name, importArgTypes, ct.c_void_p )
         
         for importer in imgImporters:
-            strct_importer = "import_image_%s" % importer
-            setattr( strct, strct_importer,
-                     fliflib.__getitem__("flif_import_image_%s" % importer) )
-            strct.__dict__[strct_importer].argtypes = importArgTypes
-            strct.__dict__[strct_importer].restype = ct.c_void_p        
+            configImportCall( "import_image_%s" % importer )
+
+
+        # Getter functions    
+        imgGetter    =  [ "width",     "height",    "nb_channels", "depth",    "palette_size" ]
+        getterResType = [ ct.c_uint32, ct.c_uint32, ct.c_uint8,    ct.c_uint8, ct.c_uint32 ]
+        configGetterCall = lambda name, rtype: configCallGeneral( "flif_image", name, [ ct.c_void_p ], rtype )
+        
+        for getter, rtype in zip( imgGetter, getterResType ):
+            configGetterCall( "get_%s" % getter, rtype )
         
         
+        # Row Reader
         rowReader = [ "GRAY8", "GRAY16", "RGBA8", "RGBA16" ]
         readerArgs = [ ct.c_void_p, ct.c_uint32, ct.c_void_p, ct.c_size_t ]
+        configReaderCall = lambda name: configCallGeneral( "flif_image", name, readerArgs )
         
         for Reader in rowReader:
-            strct_reader = "read_row_%s" % Reader
-            setattr( strct, strct_reader, 
-                     fliflib.__getitem__("flif_image_read_row_%s" % Reader) )
-            strct.__dict__[strct_reader].restype = None
-            strct.__dict__[strct_reader].argtypes = readerArgs
-        
-        
-        strct.destroy_image = fliflib.flif_destroy_image
-        strct.destroy_image.argtypes = [ ct.c_void_p ]
-
+            configReaderCall( "read_row_%s" % Reader )
 
 
 
@@ -170,26 +169,24 @@ class flifDecoderBase( object ):
         
         strct.create_decoder = fliflib.flif_create_decoder
         strct.create_decoder.restype = ct.c_void_p
-        
-        strct.decode_file = fliflib.flif_decoder_decode_file
-        strct.decode_file.restype = ct.c_int32
-        strct.decode_file.argtypes = [ ct.c_void_p, ct.c_char_p ]
-        
-        strct.set_crc_check = fliflib.flif_decoder_set_crc_check
-        strct.set_crc_check.restype = None
-        strct.set_crc_check.argtypes = [ ct.c_void_p, ct.c_uint32 ]
-        
-        strct.num_images = fliflib.flif_decoder_num_images
-        strct.num_images.restype = ct.c_size_t
-        strct.num_images.argtypes = [ ct.c_void_p ]
-        
-        strct.get_image = fliflib.flif_decoder_get_image
-        strct.get_image.restype = ct.c_void_p
-        strct.get_image.argtypes = [ ct.c_void_p, ct.c_size_t ]
-        
+                        
         strct.destroy_decoder = fliflib.flif_destroy_decoder
         strct.destroy_decoder.restype = None
         strct.destroy_decoder.argtypes = [ ct.c_void_p ]
+        
+        
+        def configCall( name, argtypes=None, restype=None ):
+            setattr( strct, name,
+                     fliflib.__getitem__("flif_decoder_%s" % name) )
+            if argtypes is not None:
+                strct.__dict__[name].argtypes = argtypes 
+            strct.__dict__[name].restype  = restype
+        
+        configCall( "decode_file", [ ct.c_void_p, ct.c_char_p ], ct.c_int32 )
+        configCall( "set_crc_check", [ ct.c_void_p, ct.c_uint32 ] )
+        configCall( "num_images", [ ct.c_void_p ], ct.c_size_t )
+        configCall( "get_image", [ ct.c_void_p, ct.c_size_t ], ct.c_void_p )
+
 
 
 ####################################################################################
