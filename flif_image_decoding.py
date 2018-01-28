@@ -21,7 +21,7 @@ from flif_wrapper_common import flifImageBase, flifDecoderBase
 
 import logging
 Logger = logging.getLogger("FLIF_Decoder")
-Logger.setLevel("DEBUG")
+Logger.setLevel("WARN")
 
 
 ####################################################################################

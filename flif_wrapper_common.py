@@ -22,7 +22,7 @@ _FLIF_libPath = os.path.join( os.path.dirname( os.path.abspath(__file__) ) , "FL
 # Logging
 import logging
 Logger = logging.getLogger("FLIF_wrapper_common")
-Logger.setLevel("DEBUG")
+Logger.setLevel("WARN")
 
 
 
