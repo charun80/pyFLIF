@@ -149,7 +149,7 @@ class flifDecoder( flifDecoderBase ):
         # optain image pointer
         flifImageHandle = self.flif.get_image( self.mFlifDecoderHandle, index )
         
-        if 0 == flifImageHandle:
+        if flifImageHandle is None:
             raise IOError("Error reading image %d" % index)
         
         return flifDecoderImage( flifImageHandle ).getImage()
