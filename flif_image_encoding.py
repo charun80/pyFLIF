@@ -20,7 +20,7 @@ from flif_wrapper_common import flifImageBase, flifEncoderBase
 
 import logging
 Logger = logging.getLogger("FLIF_Encoder")
-Logger.setLevel("WARN")
+Logger.setLevel("DEBUG")
 
 
 ####################################################################################
@@ -42,9 +42,10 @@ class flifEncoderImage( flifImageBase ):
 
 
     def  __enter__(self):
+        assert( 0 == (self.mImage.strides[0] % self.mImage.ndim) )
         self.mFlifImageHandle = self.mImporter( self.mImage.shape[1], self.mImage.shape[0], 
                                                 self.mImage.ctypes.data_as( ct.c_void_p ), 
-                                                self.mImage.strides[0] )
+                                                self.mImage.strides[0] / self.mImage.ndim )
         
         Logger.debug("Using FLIF image importer %s", repr( self.mFlifImageHandle ) )
         
