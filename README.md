@@ -1,21 +1,26 @@
-﻿# pyFLIF: ctypes based Python wrapper for Free Lossless Image Format
+[_metadata_:redirect]:- "https://codeberg.org/monilophyta/imageio-flif"
 
+# Deprecated
 
-## Build Instructions
+Please use the (imageio)[https://imageio.github.io/] plugin [imageio-flif](https://codeberg.org/monilophyta/imageio-flif).
 
-### Install the dependencies
+## pyFLIF: ctypes based Python wrapper for Free Lossless Image Format
 
-#### FLIF dependencies
+### Build Instructions
+
+#### Install the dependencies
+
+##### FLIF dependencies
 
 pyFLIF imports the [FLIF](https://github.com/FLIF-hub/FLIF) library as a sub-module. Please have a look [here](https://github.com/FLIF-hub/FLIF#install-the-dependencies) for [FLIF](https://github.com/FLIF-hub/FLIF) library dependencies.
 
-#### pyFLIF dependencies
+##### pyFLIF dependencies
 
  - numpy: `sudo apt-get install python-numpy` (on debian/ubuntu)
  - scipy (optional): `sudo apt-get install python-scipy` (on debian/ubuntu)
  - opencv (optional): `sudo apt-get install python-opencv` (on debian/ubuntu)
 
-#### Checkout + Compile
+##### Checkout + Compile
 
     git clone https://github.com/charun80/pyFLIF
     cd pyFLIF
@@ -23,17 +28,17 @@ pyFLIF imports the [FLIF](https://github.com/FLIF-hub/FLIF) library as a sub-mod
     git submodule update
     make
 
-## Usage
+### Usage
 
-### Decoding
+#### Decoding
 
-#### Simple method for single images
+##### Simple method for single images
 
     import pyFLIF
     
     img = pyFLIF.imread( "path_to/image.flif" ) # numpy array with shape [ WxH(x3/4) ]
 
-#### Advanced method also for animations
+##### Advanced method also for animations
 
 
     import pyFLIF
@@ -41,9 +46,9 @@ pyFLIF imports the [FLIF](https://github.com/FLIF-hub/FLIF) library as a sub-mod
     with pyFLIF.flifDecoder( "path_to/file.flif" ) as dec:
 	    # decompressing all frames and storing them in a list
 	    allframes = [ dec.getImage(idx) for idx in xrange(dec.numImages())
-### Encoding
+#### Encoding
 
-#### Simple method for single images
+##### Simple method for single images
 
     import pyFLIF
     
@@ -51,7 +56,7 @@ pyFLIF imports the [FLIF](https://github.com/FLIF-hub/FLIF) library as a sub-mod
     # dtype in (uint8, uint16)
     pyFLIF.imwrite( "path_to/image.flif", img ) 
 
-#### Advanced method also for animations
+##### Advanced method also for animations
 
     import pyFLIF
     
