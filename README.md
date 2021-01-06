@@ -2,7 +2,7 @@
 
 # Deprecated
 
-Please use the (imageio)[https://imageio.github.io/] plugin [imageio-flif](https://codeberg.org/monilophyta/imageio-flif).
+Please use the [imageio](https://imageio.github.io/) plugin [imageio-flif](https://codeberg.org/monilophyta/imageio-flif).
 
 ## pyFLIF: ctypes based Python wrapper for Free Lossless Image Format
 
